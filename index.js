@@ -1,10 +1,48 @@
 const express = require('express');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const app = express();
 const port = process.env.port || 5000;
 
+
 // use cors
 const cors = require('cors');
+
+// middleware
 app.use(cors());
+app.use(express.json());
+
+// db details
+// user picmanDB
+// password Jh5sZZ1xmAiKgnKe
+
+
+
+
+const uri = "mongodb+srv://picmanDB:Jh5sZZ1xmAiKgnKe@cluster0.wuk00kx.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+async function run() {
+    try {
+        await client.connect();
+        const servicesCollection = client.db("picmanDB").collection("services");
+
+        // const service = { name: "Web Development", price: 500, description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod." };
+        // const result = await servicesCollection.insertOne(service);
+        // console.log(`New listing created with the following id: ${result.insertedId}`);
+        app.post('/addservice', async (req, res) => {
+            const service = req.body;
+            const result = await servicesCollection.insertOne(service);
+            service.id = result.insertedId;
+            console.log(`New listing created with the following id: ${result.insertedId}`);
+        })
+    }
+    finally {
+
+    }
+}
+
+run().catch(err => console.error(err));
 
 
 const blogs = [
@@ -39,6 +77,14 @@ app.get('/blogs', (req, res) => {
 app.get('/', (req, res) => {
     res.send('PicMan Server is Running');
 });
+
+const services = []
+
+
+
+app.get('/services', (req, res) => {
+    res.send(services);
+})
 
 
 app.listen(port, () => {
