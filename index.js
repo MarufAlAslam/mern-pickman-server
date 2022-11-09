@@ -1,5 +1,6 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.port || 5000;
@@ -12,6 +13,8 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
+// console.log(process.env.DB_USER);
+
 // db details
 // user picmanDB
 // password Jh5sZZ1xmAiKgnKe
@@ -19,7 +22,7 @@ app.use(express.json());
 
 
 
-const uri = "mongodb+srv://picmanDB:Jh5sZZ1xmAiKgnKe@cluster0.wuk00kx.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wuk00kx.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
