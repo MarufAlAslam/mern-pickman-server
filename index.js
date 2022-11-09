@@ -42,11 +42,17 @@ async function run() {
         })
 
         // get 3 data from database
-        // get data from database
+        // get data from database in reverse order
+
+        // app.get('/services3', async (req, res) => {
+        //     const query = {}
+        //     const cursor = servicesCollection.find(query).sort({ _id: -1 }).limit(3);
+
+
         app.get('/top', async (req, res) => {
             const query = {}
             const cursor = servicesCollection.find(query);
-            const services = await cursor.limit(3).toArray();
+            const services = await cursor.limit(3).sort({ _id: -1 }).toArray();
             res.send(services);
         })
 
