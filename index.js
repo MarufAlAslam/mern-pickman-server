@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -23,6 +23,7 @@ async function run() {
         await client.connect();
         const servicesCollection = client.db("picmanDB").collection("services");
         const blogsCollection = client.db("picmanDB").collection("blogs");
+        const reviewsCollection = client.db("picmanDB").collection("reviews");
 
         // push data to database from client side
         app.post('/addservice', async (req, res) => {
@@ -33,12 +34,47 @@ async function run() {
         })
 
 
+        // push reviews to database
+        app.post('/addreview', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            review.id = result.insertedId;
+            console.log(`New review created with the following id: ${result.insertedId}`);
+        })
+
+
         // get data from database
         app.get('/services', async (req, res) => {
             const query = {}
             const cursor = servicesCollection.find(query);
             const services = await cursor.toArray();
             res.send(services);
+        })
+
+
+        // get reviews from database based on service id
+        app.get('/reviews/:id', async (req, res) => {
+            const query = { serviceId: req.params.id }
+            const cursor = reviewsCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        })
+
+
+        // app.get('/reviews', async (req, res) => {
+        //     const query = {}
+        //     const cursor = reviewsCollection.find(query);
+        //     const reviews = await cursor.toArray();
+        //     res.send(reviews);
+        // })
+
+        // get data by id
+        app.get('/service/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const cursor = servicesCollection.find(query);
+            const service = await cursor.toArray();
+            res.send(service);
         })
 
         // get 3 data from database
