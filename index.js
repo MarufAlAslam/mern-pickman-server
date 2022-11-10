@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -17,6 +18,23 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wuk00kx.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+// verify jwt token
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        res.status(401).send('Unauthorized!!! Access Denied');
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            res.status(403).send('Invalid Token');
+        }
+        req.user = decoded;
+        next();
+    })
+}
+
 
 async function run() {
     try {
@@ -69,6 +87,16 @@ async function run() {
         // })
 
 
+        // JSON WEB TOKEN API
+        app.post('/jwt', (req, res) => {
+            const user = req.body
+            // console.log(user)
+
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10d' })
+            res.json({ token })
+        })
+
+
 
         // get reviews from database based on service id
         app.get('/reviews/:id', async (req, res) => {
@@ -89,7 +117,10 @@ async function run() {
 
 
         // get reviews based on reviewerEmail
-        app.get('/reviews', async (req, res) => {
+        app.get('/reviews', verifyToken, async (req, res) => {
+            // console.log(req.headers.authorization)
+            const decoded = req.user;
+            console.log(decoded)
             const query = { reviewerEmail: req.query.email }
             const cursor = reviewsCollection.find(query);
             const reviews = await cursor.toArray();
@@ -104,6 +135,31 @@ async function run() {
             const service = await cursor.toArray();
             res.send(service);
         })
+
+
+
+
+        // update review  by id
+        app.patch('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const newValues = { $set: { review: req.body.review, rating: req.body.rating } };
+            const result = await reviewsCollection.updateOne(query, newValues);
+            console.log(`${result.matchedCount} document(s) matched the query criteria.`);
+            console.log(`${result.modifiedCount} document(s) was/were updated.`);
+            res.send(result);
+        })
+
+        // get updated review 
+        app.get('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const review = await reviewsCollection.findOne(query);
+            res.send(review);
+        })
+
+
+
 
         // get 3 data from database
         // get data from database in reverse order
