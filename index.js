@@ -78,6 +78,15 @@ async function run() {
             res.send(reviews);
         })
 
+        // delete a review
+        app.delete('/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await reviewsCollection.deleteOne(query);
+            console.log(`Deleted ${result.deletedCount} item.`);
+            res.send(result);
+        })
+
 
         // get reviews based on reviewerEmail
         app.get('/reviews', async (req, res) => {
