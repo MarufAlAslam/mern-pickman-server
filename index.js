@@ -38,7 +38,7 @@ const verifyToken = (req, res, next) => {
 
 async function run() {
     try {
-        await client.connect();
+        // await client.connect();
         const servicesCollection = client.db("picmanDB").collection("services");
         const blogsCollection = client.db("picmanDB").collection("blogs");
         const reviewsCollection = client.db("picmanDB").collection("reviews");
