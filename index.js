@@ -51,6 +51,24 @@ async function run() {
             res.send(services);
         })
 
+        // get service by id
+        app.get('/servicebyid/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const service = await servicesCollection.findOne(query);
+            res.send(service);
+        })
+
+
+        // get all reviews
+        // app.get('/reviews', async (req, res) => {
+        //     const query = {}
+        //     const cursor = reviewsCollection.find(query);
+        //     const reviews = await cursor.toArray();
+        //     res.send(reviews);
+        // })
+
+
 
         // get reviews from database based on service id
         app.get('/reviews/:id', async (req, res) => {
@@ -61,12 +79,13 @@ async function run() {
         })
 
 
-        // app.get('/reviews', async (req, res) => {
-        //     const query = {}
-        //     const cursor = reviewsCollection.find(query);
-        //     const reviews = await cursor.toArray();
-        //     res.send(reviews);
-        // })
+        // get reviews based on reviewerEmail
+        app.get('/reviews', async (req, res) => {
+            const query = { reviewerEmail: req.query.email }
+            const cursor = reviewsCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        })
 
         // get data by id
         app.get('/service/:id', async (req, res) => {
