@@ -3,7 +3,7 @@
 
 You'll find picman live site at: https://picman-a11.web.app/
 
-Client Side Repository: https://github.com/Porgramming-Hero-web-course/b6a11-service-review-client-side-MarufAlAslam
+Client Side Repository: https://github.com/MarufAlAslam/mern-pickman-client
 
 ## Server side Features and Functionalities
 
